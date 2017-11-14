@@ -12,23 +12,19 @@ node {
       {
         withEnv(['JAVA_HOME=/usr/lib/jvm/java-8-oracle'])
         {
-          steps
-          {
-            step ('alt')
-            {
               sh 'update-alternatives --install "/usr/bin/jar" "jar" "/usr/lib/jvm/java-8-oracle/bin/jar" 1'
-            }
-            step ('Build')
-            {
               sh './build.sh'
-            }
-            step ('Stash')
-            {
-              stash includes '*.war', name 'snake'
-            }
-          }
         }
       }
+    }
+    stage ('Build docker image')
+    {
+      sh 'docker build . -t snaketc:latest'
+    }
+    stage ('Tag and push')
+    {
+      sh 'docker tag snaketc:latest 172.17.0.4:5002/snaketc:latest'
+      sh 'docker push 172.17.0.4:5002/snaketc:latest'
     }
 
 }
